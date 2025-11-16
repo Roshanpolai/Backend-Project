@@ -4,7 +4,6 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
-import { use } from "react";
 
 //method to generate -> access and refresh token 
 const generateAccessAndRefreshTokens = async(userId) => {
@@ -87,8 +86,7 @@ const registerUser = asyncHandler(async (req, res) => {
         username: username.toLowerCase()
     })
     
-    const createdUser = await User.findById(user._id).select
-    ("-password -refreshToken").lean();
+    const createdUser = await User.findById(user._id).select("-password -refreshToken").lean();
 
 
     if (!createdUser) {
@@ -100,7 +98,7 @@ const registerUser = asyncHandler(async (req, res) => {
     )
 })
 
-// User logged In method
+// User logIn method
 const loginUser = asyncHandler( async(req,res) => {
 
     // Take data from request body
@@ -168,7 +166,7 @@ const loginUser = asyncHandler( async(req,res) => {
 
 // User logged out method
 const logoutUser = asyncHandler(async(req,res) => {
-    User.findByIdAndUpdate(
+    await User.findByIdAndUpdate(
         req.user._id,
         {
             $set: {
@@ -192,6 +190,7 @@ const logoutUser = asyncHandler(async(req,res) => {
     ))
 })
 
+// Refresh Access Token
 const refreshAccessToken = asyncHandler(async (req,res) => {
     const incomingRefreshToken = req.cookies
     .refreshToken || req.body.refreshToken
@@ -221,7 +220,7 @@ const refreshAccessToken = asyncHandler(async (req,res) => {
             secure: true
         }
     
-        const {accessToken, newRefreshToken} = await generateAccessAndRefreshTokens(user._id)
+        const {accessToken, refreshToken: newRefreshToken} = await generateAccessAndRefreshTokens(user._id)
     
         return res
         .status(200)
@@ -261,7 +260,7 @@ const changeCurrentPassword = asyncHandler(async (req,res) => {
 const getCurrentUser = asyncHandler(async(req, res) => {
     return res
     .status(200)
-    .json(200, req.user, "Current user fatched successfully")
+    .json( new ApiResponse(200, req.user, "Current user fetched successfully"))
 })
 
 //Update Users Account Details
@@ -269,10 +268,10 @@ const updateAccountDetails = asyncHandler(async(req,res) => {
     const {fullName, email} =req.body
 
     if(!fullName || !email){
-        throw new ApiError(400, "All fiels are required")
+        throw new ApiError(400, "All fields are required")
     }
 
-    const user = User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
@@ -308,7 +307,7 @@ const updateUserAvatar = asyncHandler(async(req,res) => {
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
-            set:{
+            $set:{
                 avatar:avatar.url
             }
         },
@@ -339,12 +338,12 @@ const updateUserCoverImage = asyncHandler(async(req,res) => {
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
-            set:{
+            $set:{
                 coverImage: coverImage.url
             }
-        },
-        {new: true}
-    ).select("-password")
+        }, 
+        {new: true}   
+    ).select("-password") 
 
     return res
     .status(200)
