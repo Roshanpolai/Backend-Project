@@ -30,8 +30,8 @@ const generateAccessAndRefreshTokens = async (userId) => {
 //register the user
 const registerUser = asyncHandler(async (req, res) => {
     const { fullName, email, username, password } = req.body;
-    // console.log("req.files =", req.files);
-
+    
+    //<---- logic-register user ---->
     // get user details from frontend
     // validation - not empty
     // check if user already exists: username, email
@@ -104,7 +104,7 @@ const registerUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, createdUser, "User registered successfully"));
 });
 
-// User logIn method
+// User login method
 const loginUser = asyncHandler(async (req, res) => {
     // Take data from request body
     // username or email
@@ -271,7 +271,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 });
 
-//Update Users Account Details
+//Update User Account Details
 const updateAccountDetails = asyncHandler(async (req, res) => {
     const { fullName, email } = req.body;
 
@@ -295,7 +295,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, user, "Account details update successfully"));
 });
 
-// Update user files
+//<------- Update user files ------->
 
 // Update user Avatar
 const updateUserAvatar = asyncHandler(async (req, res) => {
