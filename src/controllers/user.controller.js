@@ -172,13 +172,13 @@ const loginUser = asyncHandler(async (req, res) => {
         );
 });
 
-// User logged out method
+// User log-out method
 const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: undefined,
+            $unset: {
+                refreshToken: 1 //this removes the refresh token from db
             },
         },
         {
@@ -246,6 +246,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 });
 
+//<------- Update user ------->
+
 // Update Password
 const changeCurrentPassword = asyncHandler(async (req, res) => {
     const { oldPassword, newPassword } = req.body;
@@ -294,8 +296,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponse(200, user, "Account details update successfully"));
 });
-
-//<------- Update user files ------->
 
 // Update user Avatar
 const updateUserAvatar = asyncHandler(async (req, res) => {
